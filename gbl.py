@@ -1,0 +1,3 @@
+global TOKENS
+global TOKENIDX
+global TOKENLISTLEN
