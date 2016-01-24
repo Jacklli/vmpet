@@ -3,9 +3,40 @@
 # it is released in GPL v2 License.
 # All rights reserved. Liyinlong (yinlong.lee at hotmail.com)
 
-require 'imp_lexer.pl';
+$RESERVED = 'RESERVED';
+$INT      = 'INT';
+$ID       = 'ID';
 
-our @token_exprs;
+@token_exprs = (
+    ['[ \n\t]+',             'None'],
+    ['#[^\n]*',              'None'],
+    ['\:=',                  $RESERVED],
+    ['\[',                   $RESERVED],
+    ['\]',                   $RESERVED],
+    [';',                    $RESERVED],
+    ['\+',                   $RESERVED],
+    ['-',                    $RESERVED],
+    ['\*',                   $RESERVED],
+    ['/',                    $RESERVED],
+    ['<=',                   $RESERVED],
+    ['<',                    $RESERVED],
+    ['>=',                   $RESERVED],
+    ['>',                    $RESERVED],
+    ['!=',                   $RESERVED],
+    ['=',                    $RESERVED],
+    ['and',                  $RESERVED],
+    ['or',                   $RESERVED],
+    ['not',                  $RESERVED],
+    ['if',                   $RESERVED],
+    ['then',                 $RESERVED],
+    ['else',                 $RESERVED],
+    ['while',                $RESERVED],
+    ['do',                   $RESERVED],
+    ['end',                  $RESERVED],
+    ['[0-9]+',               $INT],
+    ['[A-Za-z][A-Za-z0-9_]*',$ID]
+);
+
 our @tokens = ();
 sub lex() {
     (our $characters, @token_exprs) = @_;
@@ -27,12 +58,12 @@ sub lex() {
                    $characters =~ s/$tmpchr//;
                    $pos += $tmplen;
                    push @tokens,[@token];
-                   print "pos is $pos\n";
+#                   print "pos is $pos\n";
                    break;
                } elsif($tmpchr eq $1 and $tag eq 'None') {
                    $characters =~ s/$tmpchr//;
                    $pos += $tmplen;
-                   print "pos is $pos\n";
+#                   print "pos is $pos\n";
                }
             }
         }
