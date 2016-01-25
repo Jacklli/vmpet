@@ -1,3 +1,4 @@
+import sys
 import lexer
 import gbl
 
@@ -15,13 +16,44 @@ class astStmtNode(astNode):
         self.thenStmt = thenStmt
         self.elseStmt = elseStmt
         self.nextv = nextv
+def expect(token):
+    if(gbl.TOKENS[gbl.TOKENIDX][1] == token):
+        gbl.TOKENIDX += 1
+    else:
+        print 'Expect error!'
+        sys.exit(1)
+def multiplicativeExpression():
+    lchild = primaryExpression()
+    if(gbl.TOKENS[gbl.TOKENIDX][0] == '*' or gbl.TOKENS[gbl.TOKENIDX][0] == '/'):
+        expr = astNode(gbl.TOKENS[gbl.TOKENIDX][0], gbl.TOKENS[gbl.TOKENIDX][1], None, None)
+        gbl.TOKENIDX += 1
+        expr.lchild = lchild
+        expr.rchild = multiplicativeExpression()
+        return expr
+    else:
+        return lchild
+
+def additiveExpression():
+    lchild = multiplicativeExpression()
+    if(gbl.TOKENS[gbl.TOKENIDX][0] == '-' or gbl.TOKENS[gbl.TOKENIDX][0] == '+'):
+        expr = astNode(gbl.TOKENS[gbl.TOKENIDX][0], gbl.TOKENS[gbl.TOKENIDX][1], None, None)
+        expr.lchild = lchild
+        expr.rchild = additiveExpression()
+    else:
+        return lchild
+
+def expression():
+    return additiveExpression()   
 
 def primaryExpression():
     if(gbl.TOKENS[gbl.TOKENIDX][1] == 'ID' or gbl.TOKENS[gbl.TOKENIDX][1] == 'INT'):
         expr = astNode(gbl.TOKENS[gbl.TOKENIDX][0], gbl.TOKENS[gbl.TOKENIDX][1], None, None)
         gbl.TOKENIDX += 1
-        return expr
-    
+    elif(gbl.TOKENS[gbl.TOKENIDX][0] == '('):
+        gbl.TOKENIDX += 1
+    else:
+        print 'expect ('    
+    return expr
 
 if __name__ == '__main__':
     gbl.TOKENS = lexer.dolex()
@@ -29,5 +61,4 @@ if __name__ == '__main__':
     print gbl.TOKENIDX
     gbl.TOKENLISTLEN = len(gbl.TOKENS)
     print gbl.TOKENLISTLEN
-
     print primaryExpression().token
