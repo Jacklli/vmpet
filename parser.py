@@ -17,10 +17,11 @@ class astStmtNode(astNode):
         self.elseStmt = elseStmt
         self.nextv = nextv
 def expect(token):
-    if(gbl.TOKENS[gbl.TOKENIDX][1] == token):
+    if(gbl.TOKENS[gbl.TOKENIDX][0] == token):
         gbl.TOKENIDX += 1
     else:
         print 'Expect error!'
+        print gbl.TOKENS[gbl.TOKENIDX][0]
         sys.exit(1)
 def multiplicativeExpression():
     lchild = primaryExpression()
@@ -55,10 +56,68 @@ def primaryExpression():
         print 'expect ('    
     return expr
 
+def expressionStatement():
+    if(gbl.TOKENS[gbl.TOKENIDX][1] == 'ID'):
+        assign = astStmtNode(':=', 'Reserved', None, None, None, None, None, None)
+        assign.lchild = astNode(gbl.TOKENS[gbl.TOKENIDX][0], gbl.TOKENS[gbl.TOKENIDX][1], None, None)
+        gbl.TOKENIDX += 1
+        if(gbl.TOKENS[gbl.TOKENIDX][0] == ':='):
+            gbl.TOKENIDX += 1
+            assign.expr = expression()
+        else:
+            print ':= expected'
+        expect(';')
+        return assign
+    else:
+        print 'stmt: expected ID.'
+        sys.exit(1)
+        
+def ifStatement():
+    expect('if')
+    expect('(')
+    ifStmt = astStmtNode()
+    ifStmt.expr = expression()
+    expect(')')
+    ifStmt.thenStmt = statement()
+#    ifStmt.lchild = None
+    if(gbl.TOKENS[gbl.TOKENIDX][0] == 'else'):
+        gbl.TOKENIDX += 1
+        ifStmt.elseStmt = statement()
+    return ifStmt()
+
+def whileStatement():
+    whileStmt = astStmtNode('while', None, None, None, None, None)
+    expect('while')
+    expect('(')
+    whileStmt.expr = expression()
+    expect(')')
+    whileStmt.thenStmt = statement()
+    return whileStmt
+
+def compoundStatement():
+    comStmt = astStmtNode('compound', None, None, None, None, None, None, None)
+    while(gbl.TOKENIDX < len(gbl.TOKENS)):
+        comStmt.nextv = statement()
+    return comStmt
+
+def statement():
+    if(gbl.TOKENS[gbl.TOKENIDX][0] == 'if'):
+        return ifStatement()
+    elif(gbl.TOKENS[gbl.TOKENIDX][0] == 'while'):
+        return whileStatement()
+    elif(gbl.TOKENS[gbl.TOKENIDX][1] == 'ID' or gbl.TOKENS[gbl.TOKENIDX][1] == 'INT'):
+        return expressionStatement()
+    else:
+        print 'parse error.'
+        sys.exit(1)
+
 if __name__ == '__main__':
     gbl.TOKENS = lexer.dolex()
     gbl.TOKENIDX = 0
-    print gbl.TOKENIDX
+#    print gbl.TOKENIDX
     gbl.TOKENLISTLEN = len(gbl.TOKENS)
-    print gbl.TOKENLISTLEN
-    print primaryExpression().token
+#    print gbl.TOKENLISTLEN
+    stmt = compoundStatement()
+    while(stmt):
+        print stmt.token
+        stmt = stmt.nextv

@@ -57,7 +57,7 @@ def lex(characters, token_exprs):
             pos = match.end(0)
     return tokens
 def dolex():
-    fileobj = open('hello.imp')
+    fileobj = open('expr.imp')
     text = fileobj.read()
     return lex(text, token_exprs)
 
