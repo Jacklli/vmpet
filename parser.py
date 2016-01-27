@@ -147,7 +147,7 @@ if __name__ == '__main__':
 #    print gbl.TOKENIDX
     gbl.TOKENLISTLEN = len(gbl.TOKENS)
 #    print gbl.TOKENLISTLEN
-    stmt = compoundStatement()
-    while(stmt):
-        print stmt.token
-        stmt = stmt.nextv
+    ast = compoundStatement()
+    while(ast):
+        print ast.token
+        ast = ast.nextv
