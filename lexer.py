@@ -4,6 +4,7 @@ import re
 RESERVED = 'RESERVED'
 INT      = 'INT'
 ID       = 'ID'
+JUDGE    = 'JUDGE'
 
 token_exprs = [
     (r'[ \n\t]+',              None),
@@ -16,12 +17,12 @@ token_exprs = [
     (r'-',                     RESERVED),
     (r'\*',                    RESERVED),
     (r'/',                     RESERVED),
-    (r'<=',                    RESERVED),
-    (r'<',                     RESERVED),
-    (r'>=',                    RESERVED),
-    (r'>',                     RESERVED),
-    (r'!=',                    RESERVED),
-    (r'=',                     RESERVED),
+    (r'<=',                    JUDGE),
+    (r'<',                     JUDGE),
+    (r'>=',                    JUDGE),
+    (r'>',                     JUDGE),
+    (r'!=',                    JUDGE),
+    (r'=',                     JUDGE),
     (r'and',                   RESERVED),
     (r'or',                    RESERVED),
     (r'not',                   RESERVED),

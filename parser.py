@@ -38,13 +38,36 @@ def additiveExpression():
     lchild = multiplicativeExpression()
     if(gbl.TOKENS[gbl.TOKENIDX][0] == '-' or gbl.TOKENS[gbl.TOKENIDX][0] == '+'):
         expr = astNode(gbl.TOKENS[gbl.TOKENIDX][0], gbl.TOKENS[gbl.TOKENIDX][1], None, None)
+        gbl.TOKENIDX += 1
         expr.lchild = lchild
         expr.rchild = additiveExpression()
+        return expr
+    else:
+        return lchild
+
+def judgeExpression():
+    if(gbl.TOKENS[gbl.TOKENIDX][0] == ')'):
+        return None
+    lchild = primaryExpression()
+    expr = None
+    if(gbl.TOKENS[gbl.TOKENIDX][0] == '==' or gbl.TOKENS[gbl.TOKENIDX][0] == '!=' \
+        or gbl.TOKENS[gbl.TOKENIDX][0] == '<' or gbl.TOKENS[gbl.TOKENIDX][0] == '<=' \
+        or gbl.TOKENS[gbl.TOKENIDX][0] == '>' or gbl.TOKENS[gbl.TOKENIDX][0] == '>='):
+        expr = astNode(gbl.TOKENS[gbl.TOKENIDX][0], gbl.TOKENS[gbl.TOKENIDX][1], None, None)
+        gbl.TOKENIDX += 1
+        expr.lchild = lchild
+        expr.rchild = judgeExpression()
+        return expr
+    elif(expr):
+        return expr
     else:
         return lchild
 
 def expression():
-    return additiveExpression()   
+    if(gbl.TOKENS[gbl.TOKENIDX+1][1] == 'JUDGE'):
+        return judgeExpression()
+    else:
+        return additiveExpression()   
 
 def primaryExpression():
     if(gbl.TOKENS[gbl.TOKENIDX][1] == 'ID' or gbl.TOKENS[gbl.TOKENIDX][1] == 'INT'):
@@ -52,8 +75,11 @@ def primaryExpression():
         gbl.TOKENIDX += 1
     elif(gbl.TOKENS[gbl.TOKENIDX][0] == '('):
         gbl.TOKENIDX += 1
+        expr = expression()
+        expect(')')
     else:
         print 'expect ('    
+        sys.exit(1)
     return expr
 
 def expressionStatement():
@@ -86,19 +112,22 @@ def ifStatement():
     return ifStmt()
 
 def whileStatement():
-    whileStmt = astStmtNode('while', None, None, None, None, None)
+    whileStmt = astStmtNode('while', None, None, None, None, None, None, None)
     expect('while')
     expect('(')
     whileStmt.expr = expression()
     expect(')')
-    whileStmt.thenStmt = statement()
+    expect('do')
+    whileStmt.thenStmt = compoundStatement()
     return whileStmt
 
 def compoundStatement():
     comStmt = astStmtNode('compound', None, None, None, None, None, None, None)
-    while(gbl.TOKENIDX < len(gbl.TOKENS)):
+    head = comStmt
+    while(gbl.TOKENIDX < len(gbl.TOKENS) and comStmt):
         comStmt.nextv = statement()
-    return comStmt
+        comStmt = comStmt.nextv
+    return head
 
 def statement():
     if(gbl.TOKENS[gbl.TOKENIDX][0] == 'if'):
@@ -107,6 +136,9 @@ def statement():
         return whileStatement()
     elif(gbl.TOKENS[gbl.TOKENIDX][1] == 'ID' or gbl.TOKENS[gbl.TOKENIDX][1] == 'INT'):
         return expressionStatement()
+    elif(gbl.TOKENS[gbl.TOKENIDX][0] == 'end'):
+        gbl.TOKENIDX += 1
+        return None
     else:
         print 'parse error.'
         sys.exit(1)
