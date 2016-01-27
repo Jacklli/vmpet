@@ -2,7 +2,6 @@ import sys
 import lexer
 import gbl
 
-
 class astNode(object):
     def __init__(self, token, tag, lchild, rchild):
         self.token = token 
@@ -105,7 +104,6 @@ def ifStatement():
     ifStmt.expr = expression()
     expect(')')
     ifStmt.thenStmt = statement()
-#    ifStmt.lchild = None
     if(gbl.TOKENS[gbl.TOKENIDX][0] == 'else'):
         gbl.TOKENIDX += 1
         ifStmt.elseStmt = statement()
